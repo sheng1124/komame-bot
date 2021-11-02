@@ -20,6 +20,7 @@ def create_db(database, host = '127.0.0.1', port = 3306, user='root', password='
 def connect_to_db(database, host = '127.0.0.1', port = 3306, user='root', password=''):
     try:
         connection = mysql.connector.connect(host=host, port=port, database=database, user=user, password=password)
+        #連接成功顯示訊息
         show_db_info(connection)
         return connection
     except Error as e:
@@ -60,10 +61,22 @@ def query_db(connection, sql):
     return results
 
 #更新表的值
-def update_table(connection, sql):
+def update_value(connection, sql):
     cursor = connection.cursor()
     cursor.execute(sql)
     connection.commit()
+    cursor.close()
+
+#插入值到表
+def insert_value(connection, sql):
+    cursor = connection.cursor()
+    try:
+        cursor.execute(sql)
+        connection.commit()
+    except Error as e:
+        print('error: ', e)
+        print('your sql: ', sql)
+        connection.rollback()
     cursor.close()
 
 #關閉db
