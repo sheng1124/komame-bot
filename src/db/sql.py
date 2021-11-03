@@ -51,6 +51,10 @@ def get_db_info(connection):
         return False
 
 #取的查詢 db 的 results 基本形式
+#回傳值 result = [("xxx", )]
+#result => <class 'list'>
+#result[0] => <class 'tuple'>
+#result[0][0] => <class 'str'>
 def query_db(connection, sql):
     #print(sql)
     cursor = connection.cursor()
