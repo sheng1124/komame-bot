@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from db.sql import *
+from src.db.sql import *
 
 class Line_bot_db():
     def __init__(self, db_name):
@@ -17,7 +17,7 @@ class Line_bot_db_parser(Line_bot_db):
 #只負責新增資料
 class Line_bot_db_inserter(Line_bot_db):
     def __init__(self, db_name):
-        super(Line_bot_db_adder, self).__init__(db_name)
+        super(Line_bot_db_inserter, self).__init__(db_name)
 
     #新增 linebot 的資料到資料庫
     def insert_line_bot_info(self, bot_info):
