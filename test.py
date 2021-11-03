@@ -9,5 +9,5 @@ bot_name = 'komame-bot'
 
 field = 'channel_secret'
 
-result = lbdi.query_line_bot_info(bot_name, field)
+result = lbdp.query_line_bot_info(bot_name, field)
 
