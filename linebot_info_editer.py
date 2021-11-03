@@ -12,13 +12,14 @@ field_list = [name, user_id, channel_secret, channel_access_token, webhook_dns]
 
 #更新資料
 def update_line_bot_data():
-    #取得要更新哪一個bot
-    botname = input("whitch bot you want to update?\n")
     #連接資料庫，更新資料小精靈
     lbdu = Line_bot_db_updater('komame_bot')
+    #取得要更新哪一個bot
+    botname = input("\nwhitch bot you want to update?\n")
+    
     #檢查每個欄位要不要修改
     for field in field_list:
-        new_value = input("If {} need to update, type new value or type enter skip.\n".format(field))
+        new_value = input('If "{}" need to update, type new value or type enter skip.\n'.format(field))
         if new_value:
             #需要更新
             print("update value")
@@ -28,13 +29,14 @@ def update_line_bot_data():
 def insert_new_line_bot():
     #連接資料庫，插入資料小精靈
     lbdi = Line_bot_db_inserter('komame_bot')
+    print("\nstart input data manul.")
     #手動輸入資料
     bot_info = {}
-    bot_info[name] = input("名稱\n")
+    bot_info[name] = input("name\n")
     bot_info[user_id] = input("bot user id\n")
     bot_info[channel_secret] = input("channel secret\n")
     bot_info[channel_access_token] = input("channel access token\n")
-    bot_info[webhook_dns] = input("webhook 網域名稱\n")
+    bot_info[webhook_dns] = input("webhook dns name\n")
     #確認輸入資料
     print("check your inputs")
     print("name=", bot_info[name])
