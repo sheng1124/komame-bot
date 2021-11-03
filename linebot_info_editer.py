@@ -21,7 +21,7 @@ if __name__ == '__main__':
         #更新資料
         print('update new data')
         update_line_bot_data()
-    else
+    else:
         print('exit')
 
 #更新資料
@@ -37,7 +37,7 @@ def update_line_bot_data():
             #需要更新
             print("update value")
             lbdu.update_line_bot_info(field, new_value, botname)
-            
+
 #插入新資料
 def insert_new_line_bot():
     #連接資料庫，插入資料小精靈
