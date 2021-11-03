@@ -10,20 +10,6 @@ webhook_dns = "webhook_dns"
 
 field_list = [name, user_id, channel_secret, channel_access_token, webhook_dns]
 
-if __name__ == '__main__':
-    #詢問用意
-    script = int(input("insert new data:1, update data:2.\n"))
-    if script == 1:
-        #插入新資料
-        print('insert new data')
-        insert_new_line_bot()
-    elif script == 2:
-        #更新資料
-        print('update new data')
-        update_line_bot_data()
-    else:
-        print('exit')
-
 #更新資料
 def update_line_bot_data():
     #取得要更新哪一個bot
@@ -60,3 +46,17 @@ def insert_new_line_bot():
     if input("Is your inputs correct? yes or no.\n") == 'yes':
         #輸入正確插入資料
         lbdi.insert_line_bot_info(bot_info)
+
+if __name__ == '__main__':
+    #詢問用意
+    script = int(input("insert new data:1, update data:2.\n"))
+    if script == 1:
+        #插入新資料
+        print('insert new data')
+        insert_new_line_bot()
+    elif script == 2:
+        #更新資料
+        print('update new data')
+        update_line_bot_data()
+    else:
+        print('exit')
