@@ -12,7 +12,11 @@ class Line_bot_db_parser(Line_bot_db):
     def __init__(self, db_name):
         super(Line_bot_db_parser, self).__init__(db_name)
 
-
+    #抓取linebot info特定欄位資料
+    def query_line_bot_info(self, name, field):
+        sql = 'select {} from line_bot_info where name = "{}"'.format(field, name)
+        result = query_db(self.conn, sql)
+        return result
 
 #只負責更新資料
 class Line_bot_db_updater(Line_bot_db):
