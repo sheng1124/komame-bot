@@ -11,4 +11,14 @@ field = 'channel_secret'
 
 result = lbdp.query_line_bot_info(bot_name, field)
 
+print(type(result))
+
+print(type(result[0]))
+
+print(type(result[0][0]))
+
 print(result)
+
+print(result[0])
+
+print(result[0][0])
