@@ -12,7 +12,17 @@ class Line_bot_db_parser(Line_bot_db):
     def __init__(self, db_name):
         super(Line_bot_db_parser, self).__init__(db_name)
 
+
+
 #只負責更新資料
+class Line_bot_db_updater(Line_bot_db):
+    def __init__(self, db_name):
+        super(Line_bot_db_updater, self).__init__(db_name)
+
+    #更新 linebot 的特定資料
+    def update_line_bot_info(self, field, value, name):
+        sql = 'update line_bot_info set {}="{}" where name="{}"'.format(field, value, name)
+        update_value(self.conn, sql)
 
 #只負責新增資料
 class Line_bot_db_inserter(Line_bot_db):
