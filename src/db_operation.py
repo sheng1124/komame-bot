@@ -77,13 +77,13 @@ class Line_bot_db_parser(Line_bot_db):
     
     #從音組資料表抓所有欄位資料
     def get_word_rows(self, audio_id):
-        table_name = 'word_table'
+        table_name = 'words_table'
         row = self.__query_table_rows(table_name, 'audio_id', audio_id)
         return row
     
     #計算 wordtable有多少行
-    def get_word_table_count(self):
-        result = self.__count_table_row('word_table')
+    def get_words_table_count(self):
+        result = self.__count_table_row('words_table')
         return result
 
 #只負責更新資料
@@ -121,10 +121,10 @@ class Line_bot_db_inserter(Line_bot_db):
         )
         insert_value(self.conn, sql)
     
-    def incert_word_table(self, world_info):
-        sql = 'incert into word_table(row_id, word_group_id, audio_id)\
+    def incert_word_table(self, word_info):
+        sql = 'insert into words_table(row_id, word_group_id, audio_id)\
         values(NULL, "{}", "{}")'.format(
-            world_info['word_group_id']
-            world_info['audio_id']
+            word_info['word_group_id'],
+            word_info['audio_id']
         )
         insert_value(self.conn, sql)

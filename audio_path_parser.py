@@ -34,7 +34,8 @@ if __name__ == '__main__':
     #資料從資料庫取得
     lbdp = Line_bot_db_parser(DATABASE)
     lbdi = Line_bot_db_inserter(DATABASE)
-
+    
+    print('檢查路徑')
     for path in get_mp3_path():
         #取得mp3路徑
         file_path = os.path.join("./static/mp3/" + path)
@@ -51,14 +52,16 @@ if __name__ == '__main__':
             lbdi.insert_audio_table(audio_info)
             print(path, 'insert to db')
     
+    print('整理words table')
     #整理 words table
     for row in lbdp.get_all_mp3_info():
-        print(row)
         id = row[0]
         #檢查 id 有沒有在 word 表裡 
         word_rows = lbdp.get_word_rows(id)
         if len(word_rows) == 0:
             #資料庫沒有資料 要新增資料
-            new_group_id = lbdp.get_word_table_count() + 1
+            new_group_id = lbdp.get_words_table_count() + 1
             word_info = {'audio_id' : id, 'word_group_id' : new_group_id}
             lbdi.incert_word_table(word_info)
+            print('insert to words table')
+    print('end')
