@@ -12,7 +12,8 @@ $ pip install line-bot-sdk==1.18.0
 #安裝 mysql
 $ pip install mysql-connector-python
 
-
+#安裝 Mutagen 
+pip install mutagen
 
 #使用運行指令
 

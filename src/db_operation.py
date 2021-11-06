@@ -13,10 +13,41 @@ class Line_bot_db_parser(Line_bot_db):
         super(Line_bot_db_parser, self).__init__(db_name)
 
     #抓取linebot info特定欄位資料
-    def query_line_bot_info(self, name, field):
-        sql = 'select {} from line_bot_info where name = "{}"'.format(field, name)
+    def query_line_bot_info(self, botname, field):
+        sql = 'select {} from line_bot_info where name = "{}"'.format(field, botname)
         result = query_db(self.conn, sql)
         return result[0][0]
+    
+    #抓取 audio_table 欄位資料
+    def query_audio_table(self, col_title, value):
+        sql = 'select * from audio_table where {} = "{}"'.format(col_title, value)
+        result = query_db(self.conn, sql)
+        return result[0]  #(1,filepath,length,)
+    
+    #從資料庫抓 channel_access_token
+    def get_channel_access_token(self, bot_name):
+        channel_access_token = self.query_line_bot_info(bot_name, "channel_access_token")
+        return channel_access_token
+
+    #從資料庫抓 channel_secret
+    def get_channel_secret(self, bot_name):
+        channel_secret = self.query_line_bot_info(bot_name, "channel_secret")
+        return channel_secret
+    
+    #從資料庫抓 webhook_dns
+    def get_webhook_dns(self, bot_name):
+        webhook_dns = self.query_line_bot_info(bot_name, "webhook_dns")
+        return webhook_dns
+        
+    #從音檔資料表由路徑抓欄位資料
+    def get_mp3_row(self, id = None, audio_path = None):
+        if id != None:
+            row = self.query_audio_table('id', id)
+        elif audio_path != None:
+            row = self.query_audio_table('filepath', audio_path)
+        else:
+            row = ()
+        return row
 
 #只負責更新資料
 class Line_bot_db_updater(Line_bot_db):
@@ -43,4 +74,12 @@ class Line_bot_db_inserter(Line_bot_db):
             bot_info['channel_secret'],
             bot_info['webhook_dns'])
         insert_value(self.conn, sql)
+    
+    #新增 audio table 的資料
+    def insert_audio_table(self, audio_info):
+        sql = 'insert into audio_table (id, filepath, length) \
+        values (NULL, "{}", "{}")'.format(
+            audio_info['filepath'],
+            audio_info['length']
+        )
 
