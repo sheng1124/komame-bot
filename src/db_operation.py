@@ -22,8 +22,10 @@ class Line_bot_db_parser(Line_bot_db):
     def query_audio_table(self, col_title, value):
         sql = 'select * from audio_table where {} = "{}"'.format(col_title, value)
         result = query_db(self.conn, sql)
-        return result[0]  #(1,filepath,length,)
-    
+        if len(result) != 0:
+            return result[0]  #(1,filepath,length,)
+        else:
+            return []
     #從資料庫抓 channel_access_token
     def get_channel_access_token(self, bot_name):
         channel_access_token = self.query_line_bot_info(bot_name, "channel_access_token")
@@ -82,4 +84,5 @@ class Line_bot_db_inserter(Line_bot_db):
             audio_info['filepath'],
             audio_info['length']
         )
+        insert_value(self.conn, sql)
 
