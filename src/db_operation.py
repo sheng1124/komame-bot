@@ -6,7 +6,6 @@ class Line_bot_db():
         #連到db
         self.conn = connect_to_db(database = db_name)
 
-
 #只負責抓資料
 class Line_bot_db_parser(Line_bot_db):
     def __init__(self, db_name):
@@ -17,15 +16,39 @@ class Line_bot_db_parser(Line_bot_db):
         sql = 'select {} from line_bot_info where name = "{}"'.format(field, botname)
         result = query_db(self.conn, sql)
         return result[0][0]
-    
-    #抓取 audio_table 欄位資料
-    def query_audio_table(self, col_title, value):
-        sql = 'select * from audio_table where {} = "{}"'.format(col_title, value)
+
+    #抓取 欄位資料 回傳所有符合的row
+    def __query_table_rows(self, table_name, col_title, value):
+        sql = 'select * from {} where {} = "{}"'.format(table_name, col_title, value)
         result = query_db(self.conn, sql)
         if len(result) != 0:
+            return result
+        else:
+            return []
+    
+    #抓取 欄位資料 回傳第一個row
+    def __query_table_row(self, table_name, col_title, value):
+        result = self.__query_table_rows(table_name, col_title, value)
+        if result != []:
             return result[0]  #(1,filepath,length,)
         else:
             return []
+    
+    #抓取欄位數量
+    def __count_table_row(self, table_name):
+        sql = 'select count(row_id) from {}'.format(table_name)
+        result = query_db(self.conn, sql)
+        if len(result) != 0:
+            return result[0][0]
+        else:
+            return 0
+    
+    #抓取 audio_table 所有欄位
+    def get_all_mp3_info(self):
+        sql = 'select * from audio_table where 1'
+        result = query_db(self.conn, sql)
+        return result
+    
     #從資料庫抓 channel_access_token
     def get_channel_access_token(self, bot_name):
         channel_access_token = self.query_line_bot_info(bot_name, "channel_access_token")
@@ -40,16 +63,28 @@ class Line_bot_db_parser(Line_bot_db):
     def get_webhook_dns(self, bot_name):
         webhook_dns = self.query_line_bot_info(bot_name, "webhook_dns")
         return webhook_dns
-        
-    #從音檔資料表由路徑抓欄位資料
-    def get_mp3_row(self, id = None, audio_path = None):
+
+    #從音檔資料表抓一列欄位資料
+    def get_mp3_rows(self, id = None, audio_path = None):
+        table_name = 'audio_table'
         if id != None:
-            row = self.query_audio_table('id', id)
+            row = self.__query_table_rows(table_name, 'id', id)
         elif audio_path != None:
-            row = self.query_audio_table('filepath', audio_path)
+            row = self.__query_table_rows(table_name, 'filepath', audio_path)
         else:
-            row = ()
+            row = []
         return row
+    
+    #從音組資料表抓所有欄位資料
+    def get_word_rows(self, audio_id):
+        table_name = 'word_table'
+        row = self.__query_table_rows(table_name, 'audio_id', audio_id)
+        return row
+    
+    #計算 wordtable有多少行
+    def get_word_table_count(self):
+        result = self.__count_table_row('word_table')
+        return result
 
 #只負責更新資料
 class Line_bot_db_updater(Line_bot_db):
@@ -85,4 +120,11 @@ class Line_bot_db_inserter(Line_bot_db):
             audio_info['length']
         )
         insert_value(self.conn, sql)
-
+    
+    def incert_word_table(self, world_info):
+        sql = 'incert into word_table(row_id, word_group_id, audio_id)\
+        values(NULL, "{}", "{}")'.format(
+            world_info['word_group_id']
+            world_info['audio_id']
+        )
+        insert_value(self.conn, sql)

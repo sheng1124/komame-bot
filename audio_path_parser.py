@@ -40,13 +40,25 @@ if __name__ == '__main__':
         file_path = os.path.join("./static/mp3/" + path)
         
         #檢查mp3路徑資訊有沒有在資料庫
-        mp3_row = lbdp.get_mp3_row(audio_path = path)
+        mp3_rows = lbdp.get_mp3_rows(audio_path = path)
         
         #資料庫沒有資料 要新增資料
-        if len(mp3_row) == 0:
+        if len(mp3_rows) == 0:
             #讀取mp3並取得長度資訊
             mp3_length = get_mp3_audio_length(file_path)
             audio_info = {'filepath' : path, 'length' : int(mp3_length) + 1}
             #插入資料庫
             lbdi.insert_audio_table(audio_info)
             print(path, 'insert to db')
+    
+    #整理 words table
+    for row in lbdp.get_all_mp3_info():
+        print(row)
+        id = row[0]
+        #檢查 id 有沒有在 word 表裡 
+        word_rows = lbdp.get_word_rows(id)
+        if len(word_rows) == 0:
+            #資料庫沒有資料 要新增資料
+            new_group_id = lbdp.get_word_table_count() + 1
+            word_info = {'audio_id' : id, 'word_group_id' : new_group_id}
+            lbdi.incert_word_table(word_info)
