@@ -49,6 +49,34 @@ class Line_bot_db_parser(Line_bot_db):
         result = query_db(self.conn, sql)
         return result
     
+    #抓取 keyword_table keyword所有欄位
+    def get_keyword_list(self):
+        sql = 'select name from keyword_table where 1'
+        result = query_db(self.conn, sql)
+        return result
+    
+    #取得在 words_correspond_tag 關鍵字對應的 words_group_id
+    def get_all_words(self, keyword):
+        sql = 'SELECT words_group_id FROM reply_table, keyword_table, words_correspond_tag WHERE \
+        words_correspond_tag.tag_id = reply_table.tag_id AND\
+        reply_table.keyword_id = keyword_table.keyword_id AND keyword_table.name = "{}"'.format(keyword)
+        result = query_db(self.conn, sql)
+        return result
+    
+    #取得 word_group_id 在 words_table 對應 最大的 stackid
+    def get_max_stackid(self, word_group_id):
+        sql = 'SELECT MAX(stack_id) FROM words_table WHERE word_group_id = {}'.format(word_group_id)
+        result = query_db(self.conn, sql)
+        return result[0][0]
+    
+    #取得 word_group_id stack_id 對應的 word 
+    def get_word(self, word_group_id, stack_id):
+        sql = 'SELECT audio_table.filepath, audio_table.length FROM words_table, audio_table\
+        WHERE audio_table.id = words_table.audio_id AND word_group_id = {} AND stack_id = {}\
+        ORDER BY words_table.row_id ASC'.format(word_group_id, stack_id)
+        result = query_db(self.conn, sql)
+        return result
+        
     #從資料庫抓 channel_access_token
     def get_channel_access_token(self, bot_name):
         channel_access_token = self.query_line_bot_info(bot_name, "channel_access_token")
@@ -122,8 +150,8 @@ class Line_bot_db_inserter(Line_bot_db):
         insert_value(self.conn, sql)
     
     def incert_word_table(self, word_info):
-        sql = 'insert into words_table(row_id, word_group_id, audio_id)\
-        values(NULL, "{}", "{}")'.format(
+        sql = 'insert into words_table(row_id, word_group_id, audio_id, stack_id)\
+        values(NULL, "{}", "{}", 0)'.format(
             word_info['word_group_id'],
             word_info['audio_id']
         )
