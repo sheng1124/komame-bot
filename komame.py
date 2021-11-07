@@ -83,7 +83,7 @@ def handle_message(event):
     print('word', word)
     
     #回傳音訊
-    reply_audio(event.reply_token, word)
+    reply_audio(event, word)
     #play_audio(event.reply_token, mtext)
 
 #找 keywords 所有對應的 words_g id 
@@ -124,7 +124,10 @@ def select_word(word_stack):
     return word
 
 #用音訊回應
-def reply_audio(token, word):
+def reply_audio(event, word):
+    token = event.reply_token
+    userid = event.source.user_id
+    print(userid)
     audio_msg_list = []
     for pack in word: #pack = [(前面有一隻可愛的狗勾/02.mp, 4, ), (狗勾/01.mp3, 1, ), (被狗嚇/01.mp3, 2,)]
         for row in pack: #row = (前面有一隻可愛的狗勾/02.mp, 4, )
@@ -134,7 +137,26 @@ def reply_audio(token, word):
             mp3_duration = int(row[1]) * 1000
             audio_msg = AudioSendMessage(original_content_url = mp3_path, duration = mp3_duration)
             audio_msg_list.append(audio_msg)
-    LINE_API.reply_message(token, audio_msg_list)
+    
+    #檢查音訊列表長度 #一次回應不能超過5個
+    if len(audio_msg_list) > 5:
+        reply_list = audio_msg_list[0:5]
+    else:
+        reply_list = audio_msg_list
+    
+    #回復訊息
+    is_error = False
+    try:
+        LINE_API.reply_message(token, reply_list)
+    except LineBotApiError as e:
+        print(e)
+        is_error = True
+        
+    #剩下的用push
+    replay_len = 0 if is_error else 5
+    for i in range(len(audio_msg_list))[5::5]:
+        push_list = audio_msg_list[i: i+5]
+        LINE_API.push_message(userid, push_list)
         
 def play_audio(token, mtext):
     mp3_path = ""
