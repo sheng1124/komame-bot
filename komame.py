@@ -53,8 +53,10 @@ def callback():
 @HANDLER.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     #取得使用者的文字訊息
+    if event.type != "message":
+        return
     mtext = event.message.text.strip()
-    print(mtext)
+    #print(mtext)
     
     #撿查指令
     if mtext in COMMAND_DICT:
@@ -65,26 +67,27 @@ def handle_message(event):
     
     #查詢符合哪些關鍵字
     keywords = search_keyword(mtext)
-    print('keys=', keywords)
+    #print('keys=', keywords)
     if len(keywords) == 0:
         print('no keyword found use default keyword')
-        keywords = ['迷因']
+        keywords = ['茸茸鼠講迷因']
     
     #找 keywords 所有對應的 words_g id
     words = get_all_words(keywords)
-    print('words=', words)
+    #print('words=', words)
     
     #在words隨機選一個word_stack回復
     word_stack = get_rand_wordstack(words)
-    print('word_stack', word_stack)
+    #print('word_stack', word_stack)
     
     #從word_stack中找一組word
     word = select_word(word_stack)
-    print('word', word)
+    #print('word', word)
     
     #回傳音訊
     reply_audio(event, word)
-    #play_audio(event.reply_token, mtext)
+    print('reply to', event.source.user_id)
+
 
 #找 keywords 所有對應的 words_g id 
 def get_all_words(keywords):
@@ -127,7 +130,7 @@ def select_word(word_stack):
 def reply_audio(event, word):
     token = event.reply_token
     userid = event.source.user_id
-    print(userid)
+    #print(userid)
     audio_msg_list = []
     for pack in word: #pack = [(前面有一隻可愛的狗勾/02.mp, 4, ), (狗勾/01.mp3, 1, ), (被狗嚇/01.mp3, 2,)]
         for row in pack: #row = (前面有一隻可愛的狗勾/02.mp, 4, )
