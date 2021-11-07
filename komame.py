@@ -32,9 +32,8 @@ WEBHOOK_DNS = lbdp.get_webhook_dns(BOT)
 #設置 flask static 路徑
 STATIC_MP3_PATH = "https://{}/static/mp3".format(WEBHOOK_DNS)
 
-#取得關鍵字列表
+#關鍵字列表
 KEYWORDS=[]
-load_keyword()
 
 @app.route("/")
 def test():
@@ -67,7 +66,7 @@ def handle_message(event):
     #查詢符合哪些關鍵字
     keywords = search_keyword(mtext)
     print('keys=', keywords)
-    if len(keywords) = 0:
+    if len(keywords) == 0:
         print('no keyword found use default keyword')
         keywords = ['迷因']
     
@@ -132,7 +131,7 @@ def reply_audio(token, word):
             path = row[0]
             #路徑轉成網路路徑模式
             mp3_path = STATIC_MP3_PATH + "/" + urllib.parse.quote(path)
-            mp3_duration = row[1]
+            mp3_duration = int(row[1]) * 1000
             audio_msg = AudioSendMessage(original_content_url = mp3_path, duration = mp3_duration)
             audio_msg_list.append(audio_msg)
     LINE_API.reply_message(token, audio_msg_list)
@@ -200,6 +199,8 @@ def execute_command(token, text):
     command(token)
 
 if __name__ == '__main__':
+    #取得關鍵字字表
+    load_keyword()
     app.run()
 
 
