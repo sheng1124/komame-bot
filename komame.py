@@ -94,7 +94,15 @@ def get_all_words(keywords):
     words = []
     for keyword in keywords: #有多少keyword符合就有多少pack
         #取得在 表 關鍵字對應的 words
-        result = lbdp.get_all_words(keyword)
+        try:
+            result = lbdp.get_all_words(keyword)
+        except Exception as e:
+            #重新讀取資料庫
+            print(e)
+            lbdp = Line_bot_db_parser(DATABASE)
+            result = lbdp.get_all_words(keyword)
+            raise
+        
         if len(result) :
             words.append(result) #append([(90,),(91,),(3,),(4,)])
         else:
@@ -213,9 +221,19 @@ def reply_keyword(token):
     msg = TextSendMessage(keyword_list)
     LINE_API.reply_message(token, msg)
 
+#重新讀取 keyword
+def reload_keyword():
+    try:
+        load_keyword()
+    except Exception as e:
+        print(e)
+        lbdp = Line_bot_db_parser(DATABASE)
+        load_keyword()
+
 #指令表
 COMMAND_DICT={
-'/keywords' : reply_keyword
+'/keywords' : reply_keyword,
+'/reload_keyword': reload_keyword
 }
 
 #執行指令
