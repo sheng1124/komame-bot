@@ -5,8 +5,6 @@ import time
 import urllib
 
 from flask import Flask
-app = Flask(__name__)
-
 from flask import request, abort
 from linebot import  LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
@@ -34,6 +32,8 @@ STATIC_MP3_PATH = "https://{}/static/mp3".format(WEBHOOK_DNS)
 
 #關鍵字列表
 KEYWORDS=[]
+
+app = Flask(__name__)
 
 @app.route("/")
 def test():
@@ -101,7 +101,6 @@ def get_all_words(keywords):
             print(e)
             lbdp = Line_bot_db_parser(DATABASE)
             result = lbdp.get_all_words(keyword)
-            raise
         
         if len(result) :
             words.append(result) #append([(90,),(91,),(3,),(4,)])
