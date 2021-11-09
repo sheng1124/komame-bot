@@ -31,8 +31,8 @@ WEBHOOK_DNS = lbdp.get_webhook_dns(BOT)
 STATIC_MP3_PATH = "https://{}/static/mp3".format(WEBHOOK_DNS)
 
 #關鍵字列表#取得關鍵字字表
-KEYWORDS=[]
-load_keyword(lbdp)
+KEYWORDS = lbdp.get_keyword_list()
+
 lbdp.close_conn()
 
 app = Flask(__name__)
@@ -172,11 +172,6 @@ def reply_audio(event, word):
         push_list = audio_msg_list[i: i+5]
         LINE_API.push_message(userid, push_list)
     
-#從資料庫查詢所有關鍵字
-def load_keyword(lbdp):
-    for (keyword, ) in lbdp.get_keyword_list(): #[(), ()]
-        KEYWORDS.append(keyword)
-
 #找尋所有匹配的關鍵子
 def search_keyword(text):
     #把關鍵字列表裡的關鍵字一一比對使用者傳的訊息
@@ -198,7 +193,7 @@ def reply_keyword(token):
 #重新讀取 keyword
 def reload_keyword():
     lbdp = Line_bot_db_parser(DATABASE)
-    load_keyword(lbdp)
+    KEYWORDS = lbdp.get_keyword_list()
     lbdp.close_conn()
 
 #指令表

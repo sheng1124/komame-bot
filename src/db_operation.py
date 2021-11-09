@@ -57,7 +57,10 @@ class Line_bot_db_parser(Line_bot_db):
     def get_keyword_list(self):
         sql = 'select name from keyword_table where 1'
         result = query_db(self.conn, sql)
-        return result
+        keyword_list = []
+        for (keyword, ) in result:
+            keyword_list.append(keyword)
+        return keyword_list
     
     #取得在 words_correspond_tag 關鍵字對應的 words_group_id
     def get_all_words(self, keyword):
