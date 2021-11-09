@@ -6,6 +6,10 @@ class Line_bot_db():
         #連到db
         self.conn = connect_to_db(database = db_name)
 
+    #關閉連線
+    def close_conn(self):
+        close_db_connection(self.conn)
+
 #只負責抓資料
 class Line_bot_db_parser(Line_bot_db):
     def __init__(self, db_name):

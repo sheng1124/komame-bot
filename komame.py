@@ -30,8 +30,10 @@ WEBHOOK_DNS = lbdp.get_webhook_dns(BOT)
 #設置 flask static 路徑
 STATIC_MP3_PATH = "https://{}/static/mp3".format(WEBHOOK_DNS)
 
-#關鍵字列表
+#關鍵字列表#取得關鍵字字表
 KEYWORDS=[]
+load_keyword(lbdp)
+lbdp.close_conn()
 
 app = Flask(__name__)
 
@@ -72,8 +74,9 @@ def handle_message(event):
         print('no keyword found use default keyword')
         keywords = ['茸茸鼠講迷因']
     
+    lbdp = Line_bot_db_parser(DATABASE)
     #找 keywords 所有對應的 words_g id
-    words = get_all_words(keywords)
+    words = get_all_words(lbdp, keywords)
     #print('words=', words)
     
     #在words隨機選一個word_stack回復
@@ -81,27 +84,28 @@ def handle_message(event):
     #print('word_stack', word_stack)
     
     #從word_stack中找一組word
-    word = select_word(word_stack)
+    word = select_word(lbdp, word_stack)
     #print('word', word)
     
     #回傳音訊
     reply_audio(event, word)
     print('reply to', event.source.user_id)
 
+    lbdp.close_conn()
+
 
 #找 keywords 所有對應的 words_g id 
-def get_all_words(keywords):
+def get_all_words(lbdp, keywords):
     words = []
     for keyword in keywords: #有多少keyword符合就有多少pack
         #取得在 表 關鍵字對應的 words
         try:
+            lbdp = Line_bot_db_parser(DATABASE)
             result = lbdp.get_all_words(keyword)
         except Exception as e:
             #重新讀取資料庫
             print(e)
-            lbdp = Line_bot_db_parser(DATABASE)
-            result = lbdp.get_all_words(keyword)
-        
+            
         if len(result) :
             words.append(result) #append([(90,),(91,),(3,),(4,)])
         else:
@@ -118,7 +122,7 @@ def get_rand_wordstack(words):
     return wordstack
 
 #在words隨機選一個word_stack回復
-def select_word(word_stack):
+def select_word(lbdp, word_stack):
     word = []
     for pack in word_stack: #pack = 91
         #決定stackid的值
@@ -167,38 +171,9 @@ def reply_audio(event, word):
     for i in range(len(audio_msg_list))[5::5]:
         push_list = audio_msg_list[i: i+5]
         LINE_API.push_message(userid, push_list)
-        
-def play_audio(token, mtext):
-    mp3_path = ""
-
-    if mtext == "/help":
-        cmd_list=""
-        for key in METHODS.keys():
-            cmd_list += key + "\n"
-        msg = TextSendMessage(cmd_list)
-        LINE_API.reply_message(token, msg)
-        return
-    
-    replay = False
-    message = []
-    for key in METHODS.keys():
-        if key in mtext:
-            mp3_path_list = METHODS[key]
-            rng = int(np.random.rand() * 100)
-            index = rng % len(mp3_path_list)
-            mp3_path = mp3_path_list[index]
-            print(mp3_path)
-            audio_msg = AudioSendMessage(original_content_url = mp3_path, duration=20000)
-            message.append(audio_msg)
-            replay = True
-    
-    if not replay:
-        message.append(TextSendMessage("hello"))
-    
-    LINE_API.reply_message(token, message)
     
 #從資料庫查詢所有關鍵字
-def load_keyword():
+def load_keyword(lbdp):
     for (keyword, ) in lbdp.get_keyword_list(): #[(), ()]
         KEYWORDS.append(keyword)
 
@@ -222,12 +197,9 @@ def reply_keyword(token):
 
 #重新讀取 keyword
 def reload_keyword():
-    try:
-        load_keyword()
-    except Exception as e:
-        print(e)
-        lbdp = Line_bot_db_parser(DATABASE)
-        load_keyword()
+    lbdp = Line_bot_db_parser(DATABASE)
+    load_keyword(lbdp)
+    lbdp.close_conn()
 
 #指令表
 COMMAND_DICT={
@@ -241,8 +213,6 @@ def execute_command(token, text):
     command(token)
 
 if __name__ == '__main__':
-    #取得關鍵字字表
-    load_keyword()
     app.run()
 
 
